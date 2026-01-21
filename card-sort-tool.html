@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Card Sorting Tool</title>
+
+  <!-- Inline CSS (no external dependencies) -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 6px;
+    }
+    .card {
+      padding: 12px;
+      margin: 10px 0;
+      background: #e9ecef;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    button {
+      padding: 6px 10px;
+      margin-left: 5px;
+      cursor: pointer;
+    }
+    .actions {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Card Sorting Tool</h1>
+
+    <!-- Card list -->
+    <div id="cardList"></div>
+
+    <!-- Reset state -->
+    <button onclick="resetState()">Reset Order</button>
+  </div>
+
+  <!-- Inline JavaScript -->
+  <script>
+    /*
+      Simple in-browser state tracking using localStorage.
+      No frameworks, no libraries, single-file utility.
+    */
+
+    const defaultCards = [
+      "Card One",
+      "Card Two",
+      "Card Three",
+      "Card Four"
+    ];
+
+    // Load cards from localStorage or use defaults
+    function loadCards() {
+      const saved = localStorage.getItem("cards");
+      return saved ? JSON.parse(saved) : defaultCards;
+    }
+
+    // Save cards to localStorage
+    function saveCards(cards) {
+      localStorage.setItem("cards", JSON.stringify(cards));
+    }
+
+    // Render cards on screen
+    function renderCards() {
+      const container = document.getElementById("cardList");
+      container.innerHTML = "";
+
+      const cards = loadCards();
+
+      cards.forEach((text, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <span>${text}</span>
+          <div class="actions">
+            <button onclick="moveUp(${index})">↑</button>
+            <button onclick="moveDown(${index})">↓</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Move card up
+    function moveUp(index) {
+      const cards = loadCards();
+      if (index === 0) return;
+
+      [cards[index - 1], cards[index]] = [cards[index], cards[index - 1]];
+      saveCards(cards);
+      renderCards();
+    }
+
+    // Move card down
+    function moveDown(index) {
+      const cards = loadCards();
+      if (index === cards.length - 1) return;
+
+      [cards[index + 1], cards[index]] = [cards[index], cards[index + 1]];
+      saveCards(cards);
+      renderCards();
+    }
+
+    // Reset to default state
+    function resetState() {
+      localStorage.removeItem("cards");
+      renderCards();
+    }
+
+    // Initial render
+    renderCards();
+  </script>
+
+</body>
+</html>
